@@ -16,6 +16,8 @@
 
 [以工厂函数取代构造函数(Replace Constructor with Factory Function)](#以工厂函数取代构造函数)
 
+[以命令取代函数(Replace Function with Command)](#以命令取代函数)
+
 ## 将查询函数和修改函数分离
 
 如果某个函数只是提供一个值，没有任何看得到的副作用，那么就可以任意调用这个函数，也可以把调用动作搬到调用函数的其他地方。
@@ -346,3 +348,61 @@ class Person {
 ## 以工厂函数取代构造函数
 
 需要新建一个对象时，客户端通常会调用构造函数。但与一般的函数相比，构造函数又常有一些丑陋的局限性。
+
+工厂函数不受这些限制。工厂函数的实现内部可以调用构造函数，但也可以换成别的方式实现。
+
+例子
+
+```js
+// 重构前
+class Employee {
+  constructor(name, typeCode) {
+    this._name = name;
+    this._typeCode = typeCode;
+  }
+  
+  get name() { return this._name; }
+  get type() {
+		return Employee.legalTypeCodes[this._typeCode];
+  }
+  static get legalTypeCodes() {
+    return {'E': 'Engineer', 'M': 'Manager', 'S': 'Salesman'};
+  }
+}
+
+// 调用方
+candidate = new Employee(document.name, document.empType);
+// or
+const leadEngineer = new Employee(document.leadEngineer, 'E');
+```
+
+重构第一步是创建工厂函数，把对象创建的责任直接委派给构造函数。
+
+```js
+function createEmployee(name, typeCode) {
+	return new Employee(name, typeCode);
+}
+```
+
+然后找到构造函数的调用者，逐一修改成工厂函数。
+
+```js
+// 重构后
+candidate = createEmployee(document.name, document.empType);
+// or
+const leadEngineer = createEmployee(document.leadEngineer, 'E');
+```
+
+## 以命令取代函数
+
+与普通函数相比，命令函数提供了更大的控制灵活性和更强的表达能力。除了函数调用本身，命令对象还可以支持附加的操作，例如撤销操作。
+
+例子
+
+```js
+// 重构前
+function score(candidate, medicalExam, scoringGuide) {
+  
+}
+```
+
